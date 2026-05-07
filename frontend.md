@@ -64,7 +64,7 @@ Break the explanation into 2–4 labeled blocks of related information:
 - Do not advance until the user signals readiness ("next", "continue", or after answering their follow-up question)
 
 ### Step 3 — Quiz
-After all blocks are done, ask 1–2 interview-style questions (per Teaching Rules above).
+After all blocks are done, ask 1–2 interview-style questions or give a small coding challenge (per Teaching Rules above).
 
 ### Step 4 — Wrap-up + Extra Depth
 After the quiz:
