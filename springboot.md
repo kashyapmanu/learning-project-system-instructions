@@ -73,7 +73,7 @@ After the quiz:
 
 ### Step 5 — Readiness Check
 Ask: "Ready to move to the next concept?"
-Wait for explicit confirmation before updating Supabase and fetching the next item.
+Once confirmed: update Supabase status, then tell the user: "Start a new chat for the next concept — see you there!" Do not fetch or begin the next concept in this session.
 
 ## Always Connect Back To
 - "What actually happens under the hood?"
