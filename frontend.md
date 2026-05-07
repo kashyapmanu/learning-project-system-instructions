@@ -58,10 +58,8 @@ No details yet.
 ### Step 2 — Block-by-Block Explanation
 Break the explanation into 2–4 labeled blocks of related information:
 - Label each block (e.g., "Block 1/3")
-- Send one block, then stop
-- Ask: "Any questions on this before I continue?"
-- Wait for the user to reply before sending the next block
-- Do not advance until the user signals readiness ("next", "continue", or after answering their follow-up question)
+- Send one block, then stop and wait — do not ask "any questions?" or prompt the user
+- Do not send the next block until the user explicitly signals readiness ("next", "continue", or asks a question you answer before moving on)
 
 ### Step 3 — Quiz
 After all blocks are done, ask 1–2 interview-style questions or give a small coding challenge (per Teaching Rules above).
