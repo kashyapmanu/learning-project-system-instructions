@@ -54,23 +54,6 @@ CREATE TABLE IF NOT EXISTS public._keepalive (
   pinged_at timestamp with time zone           DEFAULT now()
 );
 
--- Calorie / nutrition tracking
-CREATE TABLE IF NOT EXISTS public.calorie_logs (
-  id              uuid                      NOT NULL DEFAULT gen_random_uuid(),
-  meal            text                      NOT NULL,
-  food_items      text,
-  meal_type       text,                                          -- CHECK below
-  calories        numeric,
-  protein_g       numeric,
-  carbs_g         numeric,
-  fat_g           numeric,
-  logged_at       timestamp with time zone  NOT NULL,
-  confidence      text,                                          -- CHECK below
-  contains_gluten boolean                   NOT NULL DEFAULT false,
-  notes           text,
-  created_at      timestamp with time zone  NOT NULL DEFAULT now()
-);
-
 -- Learning topics (e.g. Java, SQL, Spring Boot …)
 CREATE TABLE IF NOT EXISTS public.topics (
   id         integer                   NOT NULL DEFAULT nextval('topics_id_seq'::regclass),
@@ -107,9 +90,6 @@ CREATE TABLE IF NOT EXISTS public.quiz_attempts (
 ALTER TABLE public._keepalive
   ADD CONSTRAINT _keepalive_pkey PRIMARY KEY (id);
 
-ALTER TABLE public.calorie_logs
-  ADD CONSTRAINT calorie_logs_pkey PRIMARY KEY (id);
-
 ALTER TABLE public.topics
   ADD CONSTRAINT topics_pkey PRIMARY KEY (id);
 
@@ -131,14 +111,6 @@ ALTER TABLE public.topics
 -- ============================================================
 -- CHECK CONSTRAINTS
 -- ============================================================
-
-ALTER TABLE public.calorie_logs
-  ADD CONSTRAINT calorie_logs_meal_type_check
-    CHECK (meal_type = ANY (ARRAY['Breakfast'::text, 'Lunch'::text, 'Dinner'::text, 'Snack'::text]));
-
-ALTER TABLE public.calorie_logs
-  ADD CONSTRAINT calorie_logs_confidence_check
-    CHECK (confidence = ANY (ARRAY['High'::text, 'Medium'::text, 'Low'::text]));
 
 ALTER TABLE public.curriculum_items
   ADD CONSTRAINT curriculum_items_status_check
@@ -165,15 +137,6 @@ ALTER TABLE public.quiz_attempts
 
 
 -- ============================================================
--- NON-PK INDEXES
--- ============================================================
-
--- Fast lookup of calorie logs by date
-CREATE INDEX IF NOT EXISTS idx_calorie_logs_logged_at
-  ON public.calorie_logs USING btree (logged_at);
-
-
--- ============================================================
 -- ROW-LEVEL SECURITY
 -- ============================================================
 -- RLS is ENABLED on all tables.
@@ -181,7 +144,6 @@ CREATE INDEX IF NOT EXISTS idx_calorie_logs_logged_at
 -- for your auth strategy (e.g. auth.uid() checks).
 
 ALTER TABLE public._keepalive       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.calorie_logs     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.topics           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.curriculum_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quiz_attempts    ENABLE ROW LEVEL SECURITY;
@@ -192,7 +154,6 @@ ALTER TABLE public.quiz_attempts    ENABLE ROW LEVEL SECURITY;
 -- Applied via supabase_migrations.schema_migrations:
 --
 --   20260425100458  create_interview_prep_schema
---   20260425101541  create_calorie_logs
 --   20260514122005  create_keepalive_table
 --   20260517155220  create_interview_questions_table
 --
