@@ -147,7 +147,7 @@ Rationale: SDE-3 interviewers assess problem decomposition skill, not just solut
 
 ### When Manu Returns After a Long Gap (7+ Days Since Last Session)
 
-If the most recent `[REVIEW]` or `[SESSION]` comment across all issues is 7+ days old:
+Fetch the single most-recently-updated issue in `NeetCode 150` (sort by `updatedAt` descending, limit 1) — `[SESSION]` and `[REVIEW]` comments are always written to recently-touched issues, so this one issue's `updatedAt` reflects the last session. If it is 7+ days old:
 
 1. Acknowledge the gap without shame: *"Looks like it's been [N] days — happens. Let's figure out where to start."*
 2. Do NOT immediately dump the full overdue queue — this is demoralizing.
@@ -368,25 +368,25 @@ Each problem has 4 review milestones. They unlock sequentially — the next mile
 
 Before fetching Linear issues, record SESSION_START using the Session Time Tracking protocol.
 
-Perform this check in a **single Linear fetch** at the start of every session:
+Perform this check with a small, **label-filtered set of fetches** at the start of every session — this keeps the cost bounded by the active review pipeline (~15-25 issues), not by the total number of problems ever completed:
 
-1. Fetch ALL issues from `NeetCode 150` with state `Done` in one call
-2. For each issue, read **both** its labels **and** its comments in the same pass
-3. Build a review state map per issue:
+1. Run one `list_issues` call per `Rx-Pending` label (`R1-Pending`, `R3-Pending`, `R7-Pending`, `R14-Pending`) against `NeetCode 150` — 4 small calls, each returning only the handful of issues at that milestone. Do NOT fetch all `Done` issues — a problem with no `Rx-Pending` label has finished the review cycle (R14-Passed) and permanently drops out of this check, so the combined result tracks recent activity, not total corpus size.
+2. For each issue returned by step 1, call `get_issue` to get its full description and read the **Review Log table** — it holds the Status and Date for every milestone, updated on every Pass/Partial Fail/Hard Fail/Skip. (The list view truncates descriptions before this table, so `get_issue` is required.) Comments are NOT needed for this check; they remain an audit trail only.
+3. Build a review state map per issue using the Review Log table:
 
 ```
 For each issue:
-  - Does it have R1-Pending? → check comments for any "[REVIEW] R1" entry today → if yes, SKIP (already done this session)
-  - Does it have R3-Pending? → same check
-  - Does it have R7-Pending? → same check
-  - Does it have R14-Pending? → same check
+  - Does it have R1-Pending? → check the Review Log "R1" row: if its date is today → SKIP (already done this session)
+  - Does it have R3-Pending? → same check on the "R3" row
+  - Does it have R7-Pending? → same check on the "R7" row
+  - Does it have R14-Pending? → same check on the "R14" row
 ```
 
-4. Compute due reviews using label + createdAt + comment dates:
-   - `R1-Pending` → due if `createdAt` ≥ 1 day ago AND no `[REVIEW] R1` comment exists today
-   - `R3-Pending` → due if most recent `[REVIEW] R1 passed` comment date ≥ 3 days ago AND no `[REVIEW] R3` comment exists today
-   - `R7-Pending` → due if most recent `[REVIEW] R3 passed` comment date ≥ 7 days ago AND no `[REVIEW] R7` comment exists today
-   - `R14-Pending` → due if most recent `[REVIEW] R7 passed` comment date ≥ 14 days ago AND no `[REVIEW] R14` comment exists today
+4. Compute due reviews using label + Review Log table dates:
+   - `R1-Pending` → due if `createdAt` ≥ 1 day ago AND the "R1" row's date isn't today
+   - `R3-Pending` → due if the "R1" row shows `Passed` with a date ≥ 3 days ago AND the "R3" row's date isn't today
+   - `R7-Pending` → due if the "R3" row shows `Passed` with a date ≥ 7 days ago AND the "R7" row's date isn't today
+   - `R14-Pending` → due if the "R7" row shows `Passed` with a date ≥ 14 days ago AND the "R14" row's date isn't today
 
 5. Present the review queue grouped by urgency:
 ```
@@ -670,7 +670,7 @@ At the very start of any interaction — whether starting a new problem, resumin
 4. **Always connect to the family.** Isolated problems are forgotten. Connected patterns persist.
 5. **The rule card is the deliverable**, not the code. Code is derived from the rule.
 6. **Always apply R1-Pending** when creating a new Linear issue.
-7. **Always check review completion** (via `[REVIEW]` prefixed comments) before surfacing a review as due — never show a review that was already completed today.
+7. **Always check review completion** (via the issue's Review Log table) before surfacing a review as due — never show a review that was already completed today.
 8. **Always require brute force before optimal.** If Manu jumps to optimal, ask for the naive solution first — every time.
 9. **Never skip Linear issue creation.** If Phase 2 was bypassed (Self-Solved fast path), create the issue immediately after Phase 3. If Linear API fails, present the issue content in chat for manual creation and do not queue the problem for review until the issue exists.
 10. **Phase 4 is a mandatory gate between Phase 3 and Phase 5.** After the rule is locked, explicitly prompt the rebuild before moving to pattern connection. Do not let the session drift from rule extraction directly to Phase 5.
