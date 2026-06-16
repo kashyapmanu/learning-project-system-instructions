@@ -266,6 +266,18 @@ Manu's progress is tracked in **Linear** (workspace: `leetcode-manu`, team: `Lee
 | Brute Force | O(?) | O(?) | — |
 | Optimal | O(?) | O(?) | [What was eliminated] |
 
+## Solution
+
+### Brute Force
+```java
+// [Brute force Java code — brief, no heavy comments]
+```
+
+### Optimal
+```java
+// [Clean, production-quality Java code — well-commented, good variable names, edge cases handled]
+```
+
 ## Edge Cases
 - [Case 1]
 - [Case 2]
