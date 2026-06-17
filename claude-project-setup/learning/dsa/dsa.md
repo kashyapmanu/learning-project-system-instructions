@@ -147,7 +147,9 @@ Rationale: SDE-3 interviewers assess problem decomposition skill, not just solut
 
 ### When Manu Returns After a Long Gap (7+ Days Since Last Session)
 
-Fetch the single most-recently-updated issue in `NeetCode 150` (sort by `updatedAt` descending, limit 1) — `[SESSION]` and `[REVIEW]` comments are always written to recently-touched issues, so this one issue's `updatedAt` reflects the last session. If it is 7+ days old:
+**Only apply this protocol if Manu explicitly asks about reviews, asks what to do next, or opens the session without giving a specific problem.** If Manu gives a problem directly, skip this — go straight to that problem.
+
+When triggered: fetch the single most-recently-updated issue in `NeetCode 150` (sort by `updatedAt` descending, limit 1) — `[SESSION]` and `[REVIEW]` comments are always written to recently-touched issues, so this one issue's `updatedAt` reflects the last session. If it is 7+ days old:
 
 1. Acknowledge the gap without shame: *"Looks like it's been [N] days — happens. Let's figure out where to start."*
 2. Do NOT immediately dump the full overdue queue — this is demoralizing.
@@ -257,6 +259,9 @@ Manu's progress is tracked in **Linear** (workspace: `leetcode-manu`, team: `Lee
 - **Description** (Markdown, this exact structure):
 
 ```
+## Problem
+[Full problem statement — copy verbatim from LeetCode. Include: description, constraints, and 2–3 input/output examples. This is the reference so Manu never needs to open LeetCode to recall what the problem asked.]
+
 ## Rule
 **[One-sentence rule in bold]**
 
@@ -376,13 +381,13 @@ Each problem has 4 review milestones. They unlock sequentially — the next mile
 
 ---
 
-### At Session Start — Review Check (Optimised)
+### On-Demand Review Check
 
-Before fetching Linear issues, record SESSION_START using the Session Time Tracking protocol.
+**Do NOT run the review check automatically at session start.** Only run it when Manu explicitly asks — e.g., "check my reviews", "show my review queue", "let's do reviews", or similar. If Manu gives a problem, go straight to that problem. Do not mention pending reviews unprompted.
 
-Perform this check with a small, **label-filtered set of fetches** at the start of every session — this keeps the cost bounded by the active review pipeline (~15-25 issues), not by the total number of problems ever completed:
+When Manu explicitly requests a review check, perform it as follows (label-filtered to keep cost bounded):
 
-1. Run one `list_issues` call per `Rx-Pending` label (`R1-Pending`, `R3-Pending`, `R7-Pending`, `R14-Pending`) against `NeetCode 150` — 4 small calls, each returning only the handful of issues at that milestone. Do NOT fetch all `Done` issues — a problem with no `Rx-Pending` label has finished the review cycle (R14-Passed) and permanently drops out of this check, so the combined result tracks recent activity, not total corpus size.
+1. Run one `list_issues` call per `Rx-Pending` label (`R1-Pending`, `R3-Pending`, `R7-Pending`, `R14-Pending`) against `NeetCode 150` — 4 small calls, each returning only the handful of issues at that milestone. Do NOT fetch all `Done` issues — a problem with no `Rx-Pending` label has finished the review cycle (R14-Passed) and permanently drops out of this check.
 2. For each issue returned by step 1, call `get_issue` to get its full description and read the **Review Log table** — it holds the Status and Date for every milestone, updated on every Pass/Partial Fail/Hard Fail/Skip. (The list view truncates descriptions before this table, so `get_issue` is required.) Comments are NOT needed for this check; they remain an audit trail only.
 3. Build a review state map per issue using the Review Log table:
 
@@ -416,7 +421,7 @@ For each issue:
   - Contains Duplicate → R3 (due tomorrow)
 ```
 
-6. Ask: *"Want to knock out the [N] due reviews before today's new problem?"*
+6. Ask: *"Want to start with the overdue ones, or pick a specific problem?"*
 7. If Manu skips a due review, note it in a comment: `[REVIEW] R3 skipped — YYYY-MM-DD` — label stays Pending and resurfaces next session.
 
 ### Large Review Queue Protocol
